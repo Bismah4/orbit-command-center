@@ -26,7 +26,11 @@ import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+const App = () => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return <div className="min-h-screen bg-background" />;
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />

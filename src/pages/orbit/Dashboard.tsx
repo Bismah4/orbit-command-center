@@ -37,12 +37,16 @@ const nodes = [
 ];
 
 const actions = [
-  { Icon: Wifi, title: "Pay internet bill", reason: "Due today · High priority", tone: "destructive" as const },
-  { Icon: MessageSquare, title: "Follow up with client", reason: "No reply since 2 days", tone: "warning" as const },
-  { Icon: FileText, title: "Review contract screenshot", reason: "Hidden clause detected", tone: "primary" as const },
+  { Icon: Wifi, title: "Pay internet bill", reason: "Due today · High priority", tone: "destructive" as const, id: "pay-internet" },
+  { Icon: MessageSquare, title: "Follow up with client", reason: "No reply since 2 days", tone: "warning" as const, id: "follow-up-client" },
+  { Icon: FileText, title: "Review contract screenshot", reason: "Hidden clause detected", tone: "primary" as const, id: "review-contract" },
 ];
 
-const canWait = ["Organize old receipts", "Review saved article", "Update goal notes"];
+const canWait = [
+  { label: "Organize old receipts", id: "organize-receipts" },
+  { label: "Review saved article", id: "review-saved" },
+  { label: "Update goal notes", id: "update-goal" },
+];
 
 const Dashboard = () => {
   const [open, setOpen] = useState<typeof nodes[number] | null>(null);
@@ -100,7 +104,7 @@ const Dashboard = () => {
             <span className="pill border-destructive/40 bg-destructive/10 text-destructive">Money · Leaking</span>
             <span className="pill border-success/40 bg-success/10 text-success">Goals · Stable</span>
           </div>
-          <Button className="mt-5 h-11 w-full rounded-xl bg-gradient-primary text-primary-foreground glow-primary">
+          <Button onClick={() => navigate("/app/daily-pulse")} className="mt-5 h-11 w-full rounded-xl bg-gradient-primary text-primary-foreground glow-primary">
             Review Today <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
@@ -144,26 +148,28 @@ const Dashboard = () => {
       <section>
         <div className="mb-3 flex items-baseline justify-between">
           <h3 className="font-display text-lg font-semibold">Today's Smart Actions</h3>
-          <button className="text-xs text-primary">View all</button>
+          <button onClick={() => navigate("/app/feed")} className="text-xs text-primary">View all</button>
         </div>
         <ul className="flex flex-col gap-2">
           {actions.map((a) => (
-            <li key={a.title} className="orbit-card flex items-center gap-3 p-3">
-              <span
-                className={cn(
-                  "grid h-11 w-11 place-items-center rounded-xl",
-                  a.tone === "destructive" && "bg-destructive/15 text-destructive",
-                  a.tone === "warning" && "bg-warning/15 text-warning",
-                  a.tone === "primary" && "bg-primary/15 text-primary",
-                )}
-              >
-                <a.Icon className="h-5 w-5" />
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{a.title}</p>
-                <p className="truncate text-xs text-muted-foreground">{a.reason}</p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            <li key={a.title}>
+              <button onClick={() => navigate(`/app/task/${a.id}`)} className="orbit-card flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-card/60">
+                <span
+                  className={cn(
+                    "grid h-11 w-11 place-items-center rounded-xl",
+                    a.tone === "destructive" && "bg-destructive/15 text-destructive",
+                    a.tone === "warning" && "bg-warning/15 text-warning",
+                    a.tone === "primary" && "bg-primary/15 text-primary",
+                  )}
+                >
+                  <a.Icon className="h-5 w-5" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{a.title}</p>
+                  <p className="truncate text-xs text-muted-foreground">{a.reason}</p>
+                </div>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
             </li>
           ))}
         </ul>
@@ -177,16 +183,17 @@ const Dashboard = () => {
         </div>
         <div className="orbit-card p-2">
           {canWait.map((t, i) => (
-            <div
-              key={t}
+            <button
+              key={t.id}
+              onClick={() => navigate(`/app/task/${t.id}`)}
               className={cn(
-                "flex items-center justify-between px-3 py-3 text-sm",
+                "flex w-full items-center justify-between px-3 py-3 text-sm text-left transition-colors hover:bg-card/60",
                 i !== canWait.length - 1 && "border-b border-border/60"
               )}
             >
-              <span className="text-muted-foreground">{t}</span>
+              <span className="text-muted-foreground">{t.label}</span>
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            </div>
+            </button>
           ))}
         </div>
       </section>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Image as ImageIcon, ScanLine, Mic, ClipboardPaste, Plus, Mail,
   Sparkles, Check, X, Pencil,
@@ -6,15 +7,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { AddedToOrbitDialog } from "@/components/orbit/OrbitDialogs";
-
-const tools = [
-  { Icon: ImageIcon, label: "Upload Screenshot" },
-  { Icon: ScanLine, label: "Scan Document" },
-  { Icon: Mic, label: "Record Voice" },
-  { Icon: ClipboardPaste, label: "Paste Text" },
-  { Icon: Plus, label: "Manual Task" },
-  { Icon: Mail, label: "Connect Email" },
-];
+import {
+  UploadScreenshotDialog, ScanDocumentDialog, RecordVoiceDialog,
+  PasteTextDialog, ManualTaskDialog, ConnectEmailDialog,
+} from "@/components/orbit/CaptureDialogs";
+import { useOrbit, FeedItem } from "@/lib/orbit-store";
+import { toast } from "sonner";
 
 const steps = [
   "Reading input...",
@@ -25,11 +23,15 @@ const steps = [
 ];
 
 const Capture = () => {
+  const { dispatch } = useOrbit();
+  const navigate = useNavigate();
   const [phase, setPhase] = useState<"idle" | "processing" | "result">("idle");
   const [stepIdx, setStepIdx] = useState(0);
   const [added, setAdded] = useState(false);
 
-  const start = () => {
+  const [openTool, setOpenTool] = useState<null | "upload" | "scan" | "voice" | "paste" | "manual" | "email">(null);
+
+  const startProcessing = () => {
     setPhase("processing");
     setStepIdx(0);
     let i = 0;
@@ -42,6 +44,35 @@ const Capture = () => {
     }, 600);
   };
 
+  const handleCaptured = () => startProcessing();
+
+  const tools = [
+    { Icon: ImageIcon, label: "Upload Screenshot", key: "upload" as const },
+    { Icon: ScanLine, label: "Scan Document", key: "scan" as const },
+    { Icon: Mic, label: "Record Voice", key: "voice" as const },
+    { Icon: ClipboardPaste, label: "Paste Text", key: "paste" as const },
+    { Icon: Plus, label: "Manual Task", key: "manual" as const },
+    { Icon: Mail, label: "Connect Email", key: "email" as const },
+  ];
+
+  const addDetected = () => {
+    const item: FeedItem = {
+      id: "c" + Date.now(),
+      icon: "Wifi",
+      title: "Pay internet bill",
+      reason: "Detected from capture · Due May 5",
+      tag: "Money",
+      due: "May 5",
+      priority: "high",
+      section: "Needs Action",
+      amount: "$42.99",
+    };
+    dispatch({ type: "ADD_FEED", item });
+    setPhase("idle");
+    setAdded(true);
+    setTimeout(() => navigate("/app/feed"), 700);
+  };
+
   return (
     <div className="flex flex-col gap-6 px-5 pt-8">
       <header>
@@ -49,9 +80,8 @@ const Capture = () => {
         <p className="mt-1 text-sm text-muted-foreground">Drop anything. Orbit will understand it.</p>
       </header>
 
-      {/* Capture area */}
       <button
-        onClick={start}
+        onClick={() => setOpenTool("upload")}
         className="orbit-card relative grid h-56 w-full place-items-center overflow-hidden text-center"
       >
         <div className="absolute inset-0 bg-gradient-radial opacity-70" />
@@ -65,12 +95,11 @@ const Capture = () => {
         </div>
       </button>
 
-      {/* Tool grid */}
       <div className="grid grid-cols-3 gap-3">
         {tools.map((t) => (
           <button
             key={t.label}
-            onClick={start}
+            onClick={() => setOpenTool(t.key)}
             className="orbit-card flex aspect-square flex-col items-center justify-center gap-2 p-3 text-center transition-transform active:scale-95"
           >
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -81,7 +110,6 @@ const Capture = () => {
         ))}
       </div>
 
-      {/* Processing */}
       {phase === "processing" && (
         <div className="orbit-card animate-fade-in p-5">
           <div className="mb-4 flex items-center gap-2">
@@ -90,21 +118,13 @@ const Capture = () => {
           </div>
           <ul className="flex flex-col gap-2">
             {steps.map((s, i) => (
-              <li
-                key={s}
-                className={cn(
-                  "flex items-center gap-3 text-sm transition-opacity",
-                  i > stepIdx && "opacity-30"
-                )}
-              >
-                <span
-                  className={cn(
-                    "grid h-6 w-6 place-items-center rounded-full border",
-                    i < stepIdx && "border-success bg-success/10 text-success",
-                    i === stepIdx && "border-primary bg-primary/10 text-primary",
-                    i > stepIdx && "border-border text-muted-foreground"
-                  )}
-                >
+              <li key={s} className={cn("flex items-center gap-3 text-sm transition-opacity", i > stepIdx && "opacity-30")}>
+                <span className={cn(
+                  "grid h-6 w-6 place-items-center rounded-full border",
+                  i < stepIdx && "border-success bg-success/10 text-success",
+                  i === stepIdx && "border-primary bg-primary/10 text-primary",
+                  i > stepIdx && "border-border text-muted-foreground"
+                )}>
                   {i < stepIdx ? <Check className="h-3 w-3" /> : <span className="h-1.5 w-1.5 rounded-full bg-current" />}
                 </span>
                 <span className={cn(i === stepIdx && "text-foreground")}>{s}</span>
@@ -114,7 +134,6 @@ const Capture = () => {
         </div>
       )}
 
-      {/* Result */}
       {phase === "result" && (
         <div className="orbit-card animate-scale-in p-5">
           <div className="flex items-center gap-2">
@@ -130,22 +149,25 @@ const Capture = () => {
             <dt className="text-muted-foreground">Action</dt><dd className="text-right font-medium">Set payment reminder</dd>
           </dl>
           <div className="mt-5 grid grid-cols-3 gap-2">
-            <Button
-              onClick={() => { setPhase("idle"); setAdded(true); }}
-              className="h-11 rounded-xl bg-gradient-primary text-primary-foreground"
-            >
+            <Button onClick={addDetected} className="h-11 rounded-xl bg-gradient-primary text-primary-foreground">
               <Check className="mr-1 h-4 w-4" /> Add
             </Button>
-            <Button variant="outline" className="h-11 rounded-xl border-border bg-card">
+            <Button onClick={() => { toast("Edit coming soon"); }} variant="outline" className="h-11 rounded-xl border-border bg-card">
               <Pencil className="mr-1 h-4 w-4" /> Edit
             </Button>
-            <Button onClick={() => setPhase("idle")} variant="outline" className="h-11 rounded-xl border-border bg-card text-muted-foreground">
+            <Button onClick={() => { setPhase("idle"); toast("Discarded"); }} variant="outline" className="h-11 rounded-xl border-border bg-card text-muted-foreground">
               <X className="mr-1 h-4 w-4" /> Discard
             </Button>
           </div>
         </div>
       )}
 
+      <UploadScreenshotDialog open={openTool === "upload"} onOpenChange={(v) => !v && setOpenTool(null)} onCaptured={handleCaptured} />
+      <ScanDocumentDialog open={openTool === "scan"} onOpenChange={(v) => !v && setOpenTool(null)} onCaptured={handleCaptured} />
+      <RecordVoiceDialog open={openTool === "voice"} onOpenChange={(v) => !v && setOpenTool(null)} onCaptured={handleCaptured} />
+      <PasteTextDialog open={openTool === "paste"} onOpenChange={(v) => !v && setOpenTool(null)} onCaptured={handleCaptured} />
+      <ManualTaskDialog open={openTool === "manual"} onOpenChange={(v) => !v && setOpenTool(null)} />
+      <ConnectEmailDialog open={openTool === "email"} onOpenChange={(v) => !v && setOpenTool(null)} />
       <AddedToOrbitDialog open={added} onOpenChange={setAdded} />
     </div>
   );

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { OrbitLogo } from "@/components/orbit/OrbitLogo";
 import { Apple, Mail } from "lucide-react";
@@ -29,6 +29,11 @@ const Login = () => {
         <Button onClick={() => navigate("/app")} className="h-14 rounded-2xl bg-gradient-primary text-base font-semibold text-primary-foreground glow-primary">
           <Mail className="mr-2 h-5 w-5" /> Continue with Email
         </Button>
+      </div>
+
+      <div className="mt-6 flex w-full items-center justify-between text-xs">
+        <Link to="/forgot-password" className="text-muted-foreground hover:text-foreground">Forgot password?</Link>
+        <Link to="/signup" className="text-foreground">Create account</Link>
       </div>
 
       <p className="mt-auto pb-10 pt-12 text-center text-xs text-muted-foreground">

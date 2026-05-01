@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Orbit premium dark command-center palette (HSL) */
+    --background: 213 33% 6%;          /* #0B0F14 */
+    --foreground: 210 40% 98%;         /* #F8FAFC */
+
+    --card: 214 28% 10%;               /* #121821 */
+    --card-foreground: 210 40% 98%;
+
+    --elevated: 213 28% 13%;           /* #17202B */
+    --elevated-foreground: 210 40% 98%;
+
+    --popover: 214 28% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 217 91% 60%;            /* #3B82F6 */
+    --primary-foreground: 210 40% 98%;
+    --primary-glow: 199 89% 60%;
+
+    --cyan: 187 85% 53%;               /* #22D3EE */
+    --cyan-foreground: 213 33% 6%;
+
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 215 28% 14%;
+    --muted-foreground: 215 20% 65%;   /* #94A3B8 */
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 210 40% 98%;
+
+    --success: 158 84% 39%;            /* #10B981 */
+    --success-foreground: 210 40% 98%;
+
+    --warning: 38 92% 50%;             /* #F59E0B */
+    --warning-foreground: 213 33% 6%;
+
+    --destructive: 0 84% 60%;          /* #EF4444 */
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 215 28% 17%;             /* #1E293B */
+    --input: 215 28% 17%;
+    --ring: 217 91% 60%;
+
+    --radius: 1rem;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%), hsl(187 85% 53%));
+    --gradient-radial: radial-gradient(circle at 50% 30%, hsl(217 91% 60% / 0.18), transparent 60%);
+    --gradient-card: linear-gradient(180deg, hsl(214 28% 12%), hsl(214 28% 9%));
+    --gradient-glow: radial-gradient(circle, hsl(217 91% 60% / 0.35), transparent 70%);
+
+    /* Shadows / glows */
+    --shadow-glow: 0 0 40px hsl(217 91% 60% / 0.35);
+    --shadow-glow-cyan: 0 0 50px hsl(187 85% 53% / 0.45);
+    --shadow-elevated: 0 10px 40px -10px hsl(213 33% 0% / 0.6);
+    --shadow-card: 0 1px 0 hsl(210 40% 98% / 0.04) inset, 0 8px 24px -12px hsl(213 33% 0% / 0.6);
+
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    --sidebar-background: 214 28% 10%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 28% 17%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark {
+    /* Orbit is dark by default — keep tokens identical */
+  }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html, body, #root { @apply bg-background text-foreground; min-height: 100%; }
+  body {
+    background-image: var(--gradient-radial);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer components {
+  .orbit-card {
+    @apply rounded-2xl border border-border/60 bg-card text-card-foreground;
+    background-image: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+  }
+  .orbit-card-elevated {
+    @apply rounded-2xl border border-border/60;
+    background-color: hsl(var(--elevated));
+    box-shadow: var(--shadow-elevated);
+  }
+  .glow-primary { box-shadow: var(--shadow-glow); }
+  .glow-cyan { box-shadow: var(--shadow-glow-cyan); }
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .ring-orbit {
+    border: 1px solid hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.08), 0 0 30px hsl(var(--primary) / 0.25) inset;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium border;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}

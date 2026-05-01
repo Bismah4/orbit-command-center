@@ -19,6 +19,8 @@ import Admin from "./pages/orbit/Admin";
 import People from "./pages/orbit/People";
 import Health from "./pages/orbit/Health";
 import Notifications from "./pages/orbit/Notifications";
+import Subscription from "./pages/orbit/Subscription";
+import EmptyStates from "./pages/orbit/EmptyStates";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();

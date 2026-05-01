@@ -48,7 +48,9 @@ const App = () => (
             <Route path="admin" element={<Admin />} />
             <Route path="people" element={<People />} />
             <Route path="health" element={<Health />} />
+            <Route path="empty" element={<EmptyStates />} />
           </Route>
+          <Route path="/subscription" element={<Subscription />} />
           <Route path="/index" element={<Navigate to="/" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -2,6 +2,8 @@ import { Check, Crown, Sparkles, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { usePremium } from "@/lib/premium";
+import { toast } from "sonner";
 
 const features = [
   "Unlimited captures",
@@ -18,6 +20,27 @@ const features = [
 const Subscription = () => {
   const [plan, setPlan] = useState<"monthly" | "yearly">("yearly");
   const navigate = useNavigate();
+  const { isPremium, setPremium } = usePremium();
+
+  const handleStart = () => {
+    if (isPremium) {
+      toast("You're already on Orbit Premium");
+      return;
+    }
+    setPremium(true);
+    toast.success("Welcome to Orbit Premium · Free trial started");
+    navigate(-1);
+  };
+
+  const handleContinueFree = () => {
+    toast("Continuing on the free plan");
+    navigate(-1);
+  };
+
+  const handleRestore = () => {
+    toast("No previous purchase found");
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/30 blur-3xl" />

@@ -2,6 +2,8 @@ import { Check, Crown, Sparkles, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { usePremium } from "@/lib/premium";
+import { toast } from "sonner";
 
 const features = [
   "Unlimited captures",
@@ -18,6 +20,27 @@ const features = [
 const Subscription = () => {
   const [plan, setPlan] = useState<"monthly" | "yearly">("yearly");
   const navigate = useNavigate();
+  const { isPremium, setPremium } = usePremium();
+
+  const handleStart = () => {
+    if (isPremium) {
+      toast("You're already on Orbit Premium");
+      return;
+    }
+    setPremium(true);
+    toast.success("Welcome to Orbit Premium · Free trial started");
+    navigate(-1);
+  };
+
+  const handleContinueFree = () => {
+    toast("Continuing on the free plan");
+    navigate(-1);
+  };
+
+  const handleRestore = () => {
+    toast("No previous purchase found");
+  };
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute -top-32 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-primary/30 blur-3xl" />
@@ -90,10 +113,25 @@ const Subscription = () => {
           </button>
         </section>
 
-        <Button className="h-14 rounded-2xl bg-gradient-primary text-base font-semibold text-primary-foreground glow-primary">
+        <Button onClick={handleStart} className="h-14 rounded-2xl bg-gradient-primary text-base font-semibold text-primary-foreground glow-primary">
           <Sparkles className="mr-2 h-4 w-4" />
-          Start 3-Day Free Trial
+          {isPremium ? "Manage subscription" : "Start 3-Day Free Trial"}
         </Button>
+
+        <div className="flex items-center justify-between gap-3">
+          <button
+            onClick={handleContinueFree}
+            className="flex-1 rounded-2xl border border-border/60 bg-card py-3 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            Continue Free
+          </button>
+          <button
+            onClick={handleRestore}
+            className="flex-1 rounded-2xl border border-border/60 bg-card py-3 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            Restore Purchase
+          </button>
+        </div>
 
         <p className="text-center text-[11px] text-muted-foreground">
           Cancel anytime. No charge during trial.

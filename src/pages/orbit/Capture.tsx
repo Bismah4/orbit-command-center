@@ -12,6 +12,7 @@ import {
   PasteTextDialog, ManualTaskDialog, ConnectEmailDialog,
 } from "@/components/orbit/CaptureDialogs";
 import { useOrbit, FeedItem } from "@/lib/orbit-store";
+import { usePremium, FREE_LIMITS } from "@/lib/premium";
 import { toast } from "sonner";
 
 const steps = [
@@ -24,6 +25,7 @@ const steps = [
 
 const Capture = () => {
   const { dispatch } = useOrbit();
+  const { isPremium, usage, incrementCapture, checkCaptureAllowed } = usePremium();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<"idle" | "processing" | "result">("idle");
   const [stepIdx, setStepIdx] = useState(0);
@@ -44,7 +46,26 @@ const Capture = () => {
     }, 600);
   };
 
-  const handleCaptured = () => startProcessing();
+  const handleCaptured = () => {
+    incrementCapture();
+    startProcessing();
+  };
+
+  const openAITool = (key: "upload" | "scan" | "voice" | "paste") => {
+    if (!checkCaptureAllowed()) return;
+    setOpenTool(key);
+  };
+
+  const openTool2 = (key: "upload" | "scan" | "voice" | "paste" | "manual" | "email") => {
+    if (key === "manual") return setOpenTool("manual");
+    if (key === "email") {
+      // Email sync is premium
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      isPremium ? setOpenTool("email") : navigate("/subscription");
+      return;
+    }
+    openAITool(key);
+  };
 
   const tools = [
     { Icon: ImageIcon, label: "Upload Screenshot", key: "upload" as const },
@@ -75,13 +96,20 @@ const Capture = () => {
 
   return (
     <div className="flex flex-col gap-6 px-5 pt-8">
-      <header>
-        <h1 className="font-display text-2xl font-bold">Universal Capture</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Drop anything. Orbit will understand it.</p>
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-bold">Universal Capture</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Drop anything. Orbit will understand it.</p>
+        </div>
+        {!isPremium && (
+          <span className="pill border-border bg-elevated text-muted-foreground">
+            {Math.max(0, FREE_LIMITS.aiCapturesPerDay - usage.aiCapturesToday)}/{FREE_LIMITS.aiCapturesPerDay} free
+          </span>
+        )}
       </header>
 
       <button
-        onClick={() => setOpenTool("upload")}
+        onClick={() => openAITool("upload")}
         className="orbit-card relative grid h-56 w-full place-items-center overflow-hidden text-center"
       >
         <div className="absolute inset-0 bg-gradient-radial opacity-70" />
@@ -99,7 +127,7 @@ const Capture = () => {
         {tools.map((t) => (
           <button
             key={t.label}
-            onClick={() => setOpenTool(t.key)}
+            onClick={() => openTool2(t.key)}
             className="orbit-card flex aspect-square flex-col items-center justify-center gap-2 p-3 text-center transition-transform active:scale-95"
           >
             <span className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">

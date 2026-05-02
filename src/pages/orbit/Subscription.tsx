@@ -113,10 +113,25 @@ const Subscription = () => {
           </button>
         </section>
 
-        <Button className="h-14 rounded-2xl bg-gradient-primary text-base font-semibold text-primary-foreground glow-primary">
+        <Button onClick={handleStart} className="h-14 rounded-2xl bg-gradient-primary text-base font-semibold text-primary-foreground glow-primary">
           <Sparkles className="mr-2 h-4 w-4" />
-          Start 3-Day Free Trial
+          {isPremium ? "Manage subscription" : "Start 3-Day Free Trial"}
         </Button>
+
+        <div className="flex items-center justify-between gap-3">
+          <button
+            onClick={handleContinueFree}
+            className="flex-1 rounded-2xl border border-border/60 bg-card py-3 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            Continue Free
+          </button>
+          <button
+            onClick={handleRestore}
+            className="flex-1 rounded-2xl border border-border/60 bg-card py-3 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            Restore Purchase
+          </button>
+        </div>
 
         <p className="text-center text-[11px] text-muted-foreground">
           Cancel anytime. No charge during trial.

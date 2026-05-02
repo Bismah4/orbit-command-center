@@ -55,8 +55,8 @@ const Profile = () => {
     {
       title: "Subscription",
       items: [
-        { Icon: CreditCard, label: "Current plan", hint: "Orbit Premium · Yearly", to: "/subscription" },
-        { Icon: Crown, label: "Upgrade / Manage plan", to: "/subscription" },
+        { Icon: CreditCard, label: "Current plan", hint: isPremium ? "Orbit Premium · Yearly" : "Free plan", to: "/subscription" },
+        { Icon: Crown, label: isPremium ? "Manage plan" : "Upgrade to Orbit Pro", to: "/subscription" },
       ],
     },
     {
@@ -72,8 +72,14 @@ const Profile = () => {
 
   const onItemClick = (it: Item) => {
     if (it.action === "pulse") setPulseOpen(true);
-    else if (it.action === "style") setStyleOpen(true);
-    else if (it.action === "email") setEmailOpen(true);
+    else if (it.action === "style") {
+      if (!requirePremium("advanced-reminder-style", "Advanced reminder styles")) return;
+      setStyleOpen(true);
+    }
+    else if (it.action === "email") {
+      if (!requirePremium("email-sync", "Email sync")) return;
+      setEmailOpen(true);
+    }
     else if (it.to) navigate(it.to);
   };
 
@@ -86,9 +92,12 @@ const Profile = () => {
           <div className="min-w-0 flex-1">
             <h1 className="font-display text-xl font-bold">Bismah Ahmed</h1>
             <p className="text-xs text-muted-foreground">bismah@example.com</p>
-            <span className="pill mt-2 border-primary/30 bg-primary/10 text-primary">
-              <Sparkles className="h-3 w-3" /> Orbit Premium · Yearly
-            </span>
+            <button
+              onClick={() => navigate("/subscription")}
+              className="pill mt-2 border-primary/30 bg-primary/10 text-primary"
+            >
+              <Sparkles className="h-3 w-3" /> {isPremium ? "Orbit Premium · Yearly" : "Free · Upgrade to Pro"}
+            </button>
           </div>
         </div>
       </header>

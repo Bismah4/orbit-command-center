@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useOrbit } from "@/lib/orbit-store";
+import { usePremium } from "@/lib/premium";
 import {
   TimePickerDialog, ReminderStyleDialog, SignOutConfirmDialog, ConnectEmailDialog,
 } from "@/components/orbit/CaptureDialogs";

@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { OrbitStoreProvider } from "@/lib/orbit-store";
+import { PremiumProvider } from "@/lib/premium";
 import Splash from "./pages/orbit/Splash";
 import Onboarding from "./pages/orbit/Onboarding";
 import Login from "./pages/orbit/Login";
@@ -45,6 +46,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <PremiumProvider>
           <Routes>
             <Route path="/" element={<Splash />} />
             <Route path="/onboarding" element={<Onboarding />} />
@@ -80,6 +82,7 @@ const App = () => {
             <Route path="/index" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </PremiumProvider>
         </BrowserRouter>
       </OrbitStoreProvider>
     </TooltipProvider>

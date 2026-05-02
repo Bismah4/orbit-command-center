@@ -12,6 +12,7 @@ import {
   PasteTextDialog, ManualTaskDialog, ConnectEmailDialog,
 } from "@/components/orbit/CaptureDialogs";
 import { useOrbit, FeedItem } from "@/lib/orbit-store";
+import { usePremium, FREE_LIMITS } from "@/lib/premium";
 import { toast } from "sonner";
 
 const steps = [
@@ -24,6 +25,7 @@ const steps = [
 
 const Capture = () => {
   const { dispatch } = useOrbit();
+  const { isPremium, usage, incrementCapture, checkCaptureAllowed } = usePremium();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<"idle" | "processing" | "result">("idle");
   const [stepIdx, setStepIdx] = useState(0);
@@ -44,7 +46,26 @@ const Capture = () => {
     }, 600);
   };
 
-  const handleCaptured = () => startProcessing();
+  const handleCaptured = () => {
+    incrementCapture();
+    startProcessing();
+  };
+
+  const openAITool = (key: "upload" | "scan" | "voice" | "paste") => {
+    if (!checkCaptureAllowed()) return;
+    setOpenTool(key);
+  };
+
+  const openTool2 = (key: "upload" | "scan" | "voice" | "paste" | "manual" | "email") => {
+    if (key === "manual") return setOpenTool("manual");
+    if (key === "email") {
+      // Email sync is premium
+      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+      isPremium ? setOpenTool("email") : navigate("/subscription");
+      return;
+    }
+    openAITool(key);
+  };
 
   const tools = [
     { Icon: ImageIcon, label: "Upload Screenshot", key: "upload" as const },

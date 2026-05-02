@@ -17,6 +17,7 @@ type Item = { Icon: any; label: string; hint?: string; to?: string; action?: str
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { state } = useOrbit();
   const { isPremium, requirePremium } = usePremium();
   const [pulseOpen, setPulseOpen] = useState(false);
   const [styleOpen, setStyleOpen] = useState(false);
